@@ -2,50 +2,70 @@ import { DollarSign, Globe, User } from "lucide-react";
 import DashboardCard, { DashboardCardProps } from "../card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardBarChart } from "../chart";
-import { DashboardList } from "../list";
 import prisma from "@/lib/prisma";
 import { formatTime } from "@/lib/utils";
-import moment from "moment";
-import { lte } from "lodash";
-
-export default async function UsersDetailsDashboardCustom(props: { userId: string }) {
-
-  const thisWeek = {
-    start: moment().startOf('week').toDate(),
-    end: moment().endOf('week').toDate()
-  }
+import moment from "moment-timezone";
+import { DashboardList } from "../list";
 
 
-  const domainsVisited = (await prisma.domain.findMany({
+
+export type UserDetailsDashboardCustomProps = {
+  userId: string,
+  start: string,
+  end: string,
+  title: string,
+  description: string,
+}
+
+
+const fetchDomainData = async (userId: string, start: string, end: string) => {
+  return await prisma.domain.findMany({
     where: {
       Site: {
-        some: {
-          userId: props.userId,
+        every: {
+          userId: userId,
           startDateTime: {
-            gte: thisWeek.start,
-            lte: thisWeek.end
+            lte: new Date(end),
+          },
+          endDateTime: {
+            gte: new Date(start),
           }
         }
       }
     },
     include: {
       _count: true,
-      Site: true // Optional: if you want to include site details
+      Site: true // Include site details if needed
     }
-  })).map(_d => ({
-    ..._d,
-    visits: _d._count.Site,
-    pageCount: _d._count.Page,
-    timeSpent: _d.Site.reduce((acc, curr) => acc + (new Date(curr.endDateTime).getTime() - new Date(curr.startDateTime).getTime()), 0),
-    formattedTimeSpent: (formatTime(_d.Site.reduce((acc, curr) => acc + (new Date(curr.endDateTime).getTime() - new Date(curr.startDateTime).getTime()), 0))),
-    LastVisitedAt: moment(new Date(Math.max(..._d.Site.map(site => new Date(site.endDateTime).getTime()))).toISOString()).fromNow()
-  })).sort((a, b) => b._count.Site - a._count.Site)
+  });
+}
 
+const processDomainData = (domains: any[]) => {
+  return domains.map((domain: any) => ({
+    ...domain,
+    visits: domain._count.Site,
+    pageCount: domain._count.Page,
+    timeSpent: domain.Site.reduce((acc: number, site: any) => acc + (new Date(site.endDateTime).getTime() - new Date(site.startDateTime).getTime()), 0),
+    formattedTimeSpent: formatTime(domain.Site.reduce((acc: number, site: any) => acc + (new Date(site.endDateTime).getTime() - new Date(site.startDateTime).getTime()), 0)),
+    LastVisitedAt: moment(new Date(Math.max(...domain.Site.map((site: any) => new Date(site.endDateTime).getTime()))).toISOString()).fromNow()
+  })).sort((a, b) => b._count.Site - a._count.Site);
+}
+
+export default async function UsersDetailsDashboardCustom(props: UserDetailsDashboardCustomProps) {
+
+  console.log('dates', new Date(props.start), new Date(props.end));
+
+  const domainsVisited = await fetchDomainData(props.userId, props.start, props.end);
+  const processedDomains = processDomainData(domainsVisited);
+
+  const graphData = {
+    timeSpent: processedDomains.sort((a, b) => b.timeSpent - a.timeSpent)
+  }
 
   const cardDetails = {
-    totalDomainVisited: domainsVisited.length,
-    totalPageVisited: domainsVisited.reduce((acc, curr) => acc + curr._count.Page, 0),
-    totalTimeSpent: formatTime(domainsVisited.reduce((acc, curr) => acc + curr.timeSpent, 0)),
+    totalDomainVisited: processedDomains.length,
+    totalPageVisited: processedDomains.reduce((acc, domain) => acc + domain.pageCount, 0),
+    totalTimeSpent: formatTime(processedDomains.reduce((acc, domain) => acc + domain.timeSpent, 0)),
   }
 
   const cards: DashboardCardProps[] = [
@@ -66,14 +86,16 @@ export default async function UsersDetailsDashboardCustom(props: { userId: strin
     }
   ];
 
+
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col items-start justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">
-          Weekly - {moment(thisWeek.start).format('DD MMM')} to {moment(thisWeek.end).format('DD MMM')}
+          {props.title}
         </h2>
         <small className="flex-1 text-gray-600">
-          <span className="font-bold">Last 7 days</span>
+          <span className="font-bold">{props.description}</span>
         </small>
       </div>
 
@@ -91,7 +113,7 @@ export default async function UsersDetailsDashboardCustom(props: { userId: strin
               <CardTitle>Frequently Visited Domains</CardTitle>
             </CardHeader>
             <CardContent className="pl-2">
-              <DashboardBarChart data={domainsVisited.slice(0, 15)} xAxisKey="name" yAxisKey="visits" valueKey={"visits"} />
+              <DashboardBarChart data={graphData.timeSpent.slice(0, 15)} xAxisKey="name" yAxisKey="timeSpent" valueKey={"timeSpent"} />
             </CardContent>
           </Card>
           <Card className="col-span-3">
@@ -102,7 +124,7 @@ export default async function UsersDetailsDashboardCustom(props: { userId: strin
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <DashboardList data={domainsVisited.slice(0, 6)} titleKey="name" descriptionKey="LastVisitedAt" valueKey="formattedTimeSpent" />
+              <DashboardList data={graphData.timeSpent.slice(0, 6)} titleKey="name" descriptionKey="LastVisitedAt" valueKey="formattedTimeSpent" />
             </CardContent>
           </Card>
         </div>

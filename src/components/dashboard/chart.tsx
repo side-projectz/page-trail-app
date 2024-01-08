@@ -1,5 +1,6 @@
 'use client';
 
+import { formatTime } from "@/lib/utils";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
 
 const data = [
@@ -55,10 +56,10 @@ const data = [
 
 type DashboardChartProps = {
   data: Record<string, any>[];
+  valueKey: string;
   xAxisKey?: string;
   yAxisKey?: string;
   yAxisFormatter?: (value: any) => string;
-  valueKey: string;
 }
 
 export default function DashboardDemoChart() {
@@ -95,6 +96,8 @@ export default function DashboardDemoChart() {
 
 
 export function DashboardBarChart(props: DashboardChartProps) {
+
+
   return (
     <ResponsiveContainer width="100%" height={350}>
       <BarChart data={props.data}>
@@ -111,9 +114,11 @@ export function DashboardBarChart(props: DashboardChartProps) {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={props.yAxisFormatter || ((value) => `${value}`)}
+          tickFormatter={props.yAxisFormatter || ((value) => `${formatTime(value)}`)}
         />
-        <Tooltip />
+        <Tooltip
+          formatter={(value) => `${formatTime(value as number)}`}
+        />
         <Bar
           dataKey={props.valueKey}
           fill="currentColor"
