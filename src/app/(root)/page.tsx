@@ -46,7 +46,7 @@ export default async function UsersDetailsDashboard() {
 
   return (
     <>
-      <div className="flex-1 space-y-8 p-8 pt-6">
+      <div className="flex-1 space-y-8 md:p-8 pt-6">
 
         {/* <UsersDetailsDashboardAll userId={userDetails.id} /> */}
         {/* <UsersDetailsDashboardToday userId={userDetails.id} /> */}

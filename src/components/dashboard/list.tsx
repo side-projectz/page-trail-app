@@ -16,7 +16,7 @@ export function DashboardList(props: DashboardListProps) {
         props.data.map((item, index) => (
           <div key={index} className="flex items-center">
               <Globe size={24} />
-            <div className="ml-4 space-y-1">
+            <div className="ml-4 space-y-1 flex-1 overflow-hidden">
               <p className="text-sm font-medium leading-none">
                 {item[props.titleKey]}
               </p>

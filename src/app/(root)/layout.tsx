@@ -5,6 +5,7 @@ import SessionProvider from '@/components/providers/SessionProvider';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 import Header from '@/components/header';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -25,13 +26,20 @@ export default async function RootLayout({
     redirect('/api/auth/signin');
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <SessionProvider session={session}>
         <body className={inter.className}>
-          <Header />
-          <main className="container mx-auto px-4 py-2">
-            {children}
-          </main>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            <main className="container mx-auto px-4 py-2">
+              {children}
+            </main>
+          </ThemeProvider>
         </body>
       </SessionProvider>
     </html>
