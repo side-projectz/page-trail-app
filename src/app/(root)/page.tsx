@@ -25,33 +25,28 @@ export default async function UsersDetailsDashboard() {
 
 
   const all = {
-    start: moment().startOf('year').utcOffset(1).format('YYYY-MM-DDT00:00:00'),
-    end: moment().endOf('year').utcOffset(1).format('YYYY-MM-DDT23:59:59')
+    start: moment().startOf('year').toISOString(),
+    end: moment().endOf('year').toISOString()
   }
 
   const today = {
-    start: moment().startOf('day').subtract(0, "days").format('YYYY-MM-DDT00:00:00'),
-    end: moment().endOf('day').subtract(0, "days").format('YYYY-MM-DDT23:59:59')
+    start: moment().startOf('day').subtract(0, "days").toISOString(),
+    end: moment().endOf('day').subtract(0, "days").toISOString()
   }
 
   const thisWeek = {
-    start: moment().startOf('week').subtract(0, 'week').format('YYYY-MM-DDT00:00:00'),
-    end: moment().endOf('week').subtract(0, 'week').format('YYYY-MM-DDT23:59:59')
+    start: moment().startOf('week').subtract(0, 'week').toISOString(),
+    end: moment().endOf('week').subtract(0, 'week').toISOString()
   }
   const PrevWeek = {
-    start: moment().startOf('week').subtract(1, 'week').format('YYYY-MM-DDT00:00:00'),
-    end: moment().endOf('week').subtract(1, 'week').format('YYYY-MM-DDT23:59:59')
+    start: moment().startOf('week').subtract(1, 'week').toISOString(),
+    end: moment().endOf('week').subtract(1, 'week').toISOString()
   }
 
 
   return (
     <>
       <div className="flex-1 space-y-8 md:p-8 pt-6">
-
-        {/* <UsersDetailsDashboardAll userId={userDetails.id} /> */}
-        {/* <UsersDetailsDashboardToday userId={userDetails.id} /> */}
-        {/* <UsersDetailsDashboardWeek userId={userDetails.id} /> */}
-
 
         <UsersDetailsDashboardCustom
           title="Overall"

@@ -19,18 +19,34 @@ export type UserDetailsDashboardCustomProps = {
 
 
 const fetchDomainData = async (userId: string, start: string, end: string) => {
+
+  const startTime = new Date(start);
+  const endTime = new Date(end);
+
+  const sites = await prisma.site.groupBy({
+    by: ['domainId'],
+    where: {
+      userId: userId,
+      startDateTime: {
+        gte: startTime,
+        lte: endTime
+      },
+      endDateTime: {
+        gte: startTime,
+        lte: endTime
+      }
+    },
+    _count: {
+      domainId: true,
+    }
+  })
+
+  const domainIds = Object.entries(sites).map(([key, value]) => value.domainId);
+
   return await prisma.domain.findMany({
     where: {
-      Site: {
-        every: {
-          userId: userId,
-          startDateTime: {
-            lte: new Date(end),
-          },
-          endDateTime: {
-            gte: new Date(start),
-          }
-        }
+      id: {
+        in: (domainIds as string[]),
       }
     },
     include: {
@@ -52,8 +68,6 @@ const processDomainData = (domains: any[]) => {
 }
 
 export default async function UsersDetailsDashboardCustom(props: UserDetailsDashboardCustomProps) {
-
-  console.log('dates', new Date(props.start), new Date(props.end));
 
   const domainsVisited = await fetchDomainData(props.userId, props.start, props.end);
   const processedDomains = processDomainData(domainsVisited);
