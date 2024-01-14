@@ -1,4 +1,4 @@
-import { DollarSign, Globe, User } from "lucide-react";
+import { CalendarIcon, DollarSign, Globe, User } from "lucide-react";
 import DashboardCard, { DashboardCardProps } from "../card";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { DashboardBarChart } from "../chart";
@@ -22,6 +22,9 @@ const fetchDomainData = async (userId: string, start: string, end: string) => {
 
   const startTime = new Date(start);
   const endTime = new Date(end);
+
+  const _s = moment(startTime).utc(false);
+  const _e = moment(endTime).utc(true);
 
   const sites = await prisma.site.groupBy({
     by: ['domainId'],
@@ -100,17 +103,17 @@ export default async function UsersDetailsDashboardCustom(props: UserDetailsDash
     }
   ];
 
-
-
   return (
     <div className="space-y-6">
       <div className="flex flex-col items-start justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">
-          {props.title}
-        </h2>
-        <small className="flex-1 text-gray-600">
-          <span className="font-bold">{props.description}</span>
-        </small>
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">
+            {props.title}
+          </h2>
+          <small className="flex-1 text-gray-600">
+            <span>{props.description}</span>
+          </small>
+        </div>
       </div>
 
 

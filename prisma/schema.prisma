@@ -12,8 +12,8 @@ model User {
   email     String   @unique
   name      String?
   image     String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   isActive  Boolean  @default(true)
   Site      Site[]
 }
@@ -21,8 +21,8 @@ model User {
 model Domain {
   id        String   @id @default(cuid())
   name      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
   Page      Page[]
   Site      Site[]
 }
@@ -34,8 +34,8 @@ model Page {
   meta_title       String?
   meta_description String?
   meta_image       String?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime @updatedAt @db.Timestamptz(3)
   domain           Domain   @relation(fields: [domainId], references: [id])
   Site             Site[]
 }
@@ -44,11 +44,11 @@ model Site {
   id            String   @id @default(cuid())
   domainId      String
   userId        String
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  endDateTime   DateTime
+  createdAt     DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime @updatedAt @db.Timestamptz(3)
+  endDateTime   DateTime @db.Timestamptz(3)
   pageId        String
-  startDateTime DateTime
+  startDateTime DateTime @db.Timestamptz(3)
   timeZone      String?
   Domain        Domain   @relation(fields: [domainId], references: [id])
   page          Page     @relation(fields: [pageId], references: [id])

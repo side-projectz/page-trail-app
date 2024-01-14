@@ -6,7 +6,14 @@ import UsersDetailsDashboardCustom from "@/components/dashboard/users/user-dashb
 import moment from "moment-timezone";
 
 
-export default async function UsersDetailsDashboard() {
+export default async function UsersDetailsDashboard(
+  {
+    searchParams
+  }:
+    {
+      searchParams?: { [key: string]: string | string[] | undefined };
+    }
+) {
 
   const session = await getServerSession();
 
@@ -14,15 +21,16 @@ export default async function UsersDetailsDashboard() {
     redirect('/api/auth/signin');
   }
 
+  console.log(searchParams);
+  const { start, end } = searchParams as { userId: string, start: string, end: string };
+
   const userId = session?.user?.email as string;
 
   const userDetails = await getUserDetails(userId);
-  console.log(userDetails)
 
   if (userDetails === null) {
     return null
   }
-
 
   const all = {
     start: moment().startOf('year').toISOString(),
@@ -30,14 +38,22 @@ export default async function UsersDetailsDashboard() {
   }
 
   const today = {
-    start: moment().startOf('day').subtract(0, "days").toISOString(),
-    end: moment().endOf('day').subtract(0, "days").toISOString()
+    start: start ?? moment().utc(false).startOf('day').subtract(0, "days").toISOString(),
+    end: end ?? moment().utc(false).endOf('day').subtract(0, "days").toISOString()
   }
+
+
+  const yesterday = {
+    start: moment().utc(false).startOf('day').subtract(1, "days").toISOString(),
+    end: moment().utc(false).endOf('day').subtract(1, "days").toISOString()
+  }
+
 
   const thisWeek = {
     start: moment().startOf('week').subtract(0, 'week').toISOString(),
     end: moment().endOf('week').subtract(0, 'week').toISOString()
   }
+  
   const PrevWeek = {
     start: moment().startOf('week').subtract(1, 'week').toISOString(),
     end: moment().endOf('week').subtract(1, 'week').toISOString()
@@ -63,6 +79,15 @@ export default async function UsersDetailsDashboard() {
           start={today.start}
           end={today.end}
         />
+
+        <UsersDetailsDashboardCustom
+          title="Yesterday"
+          description="The time spent on the internet yesterday"
+          userId={userDetails.id}
+          start={yesterday.start}
+          end={yesterday.end}
+        />
+
         <UsersDetailsDashboardCustom
           title="This Week"
           description="The time spent on the internet this week"
@@ -77,8 +102,6 @@ export default async function UsersDetailsDashboard() {
           start={PrevWeek.start}
           end={PrevWeek.end}
         />
-
-
 
       </div>
 
