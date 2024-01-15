@@ -23,8 +23,8 @@ const fetchDomainData = async (userId: string, start: string, end: string) => {
   const startTime = new Date(start);
   const endTime = new Date(end);
 
-  const _s = moment(startTime).utc(false);
-  const _e = moment(endTime).utc(true);
+  console.log("startTime", startTime);  
+  console.log("endTime", endTime);
 
   const sites = await prisma.site.groupBy({
     by: ['domainId'],

@@ -25,38 +25,39 @@ export default async function UsersDetailsDashboard(
   const { start, end } = searchParams as { userId: string, start: string, end: string };
 
   const userId = session?.user?.email as string;
-
   const userDetails = await getUserDetails(userId);
+
 
   if (userDetails === null) {
     return null
   }
 
+  const userTimeZone = 'Asia/Calcutta';
+
   const all = {
-    start: moment().startOf('year').toISOString(),
-    end: moment().endOf('year').toISOString()
+    start: moment().tz(userTimeZone).startOf('year').toISOString(),
+    end: moment().tz(userTimeZone).endOf('year').toISOString()
   }
 
   const today = {
-    start: start ?? moment().utc(false).startOf('day').subtract(0, "days").toISOString(),
-    end: end ?? moment().utc(false).endOf('day').subtract(0, "days").toISOString()
+    start: start ?? moment().tz(userTimeZone).startOf('day').subtract(1, "days").toISOString(),
+    end: end ?? moment().tz(userTimeZone).endOf('day').subtract(1, "days").toISOString()
   }
 
 
   const yesterday = {
-    start: moment().utc(false).startOf('day').subtract(1, "days").toISOString(),
-    end: moment().utc(false).endOf('day').subtract(1, "days").toISOString()
+    start: moment().tz(userTimeZone).startOf('day').subtract(2, "days").toISOString(),
+    end: moment().tz(userTimeZone).endOf('day').subtract(2, "days").toISOString()
   }
 
-
   const thisWeek = {
-    start: moment().startOf('week').subtract(0, 'week').toISOString(),
-    end: moment().endOf('week').subtract(0, 'week').toISOString()
+    start: moment().tz(userTimeZone).startOf('week').subtract(0, 'week').toISOString(),
+    end: moment().tz(userTimeZone).endOf('week').subtract(0, 'week').toISOString()
   }
   
   const PrevWeek = {
-    start: moment().startOf('week').subtract(1, 'week').toISOString(),
-    end: moment().endOf('week').subtract(1, 'week').toISOString()
+    start: moment().tz(userTimeZone).startOf('week').subtract(1, 'week').toISOString(),
+    end: moment().tz(userTimeZone).endOf('week').subtract(1, 'week').toISOString()
   }
 
 

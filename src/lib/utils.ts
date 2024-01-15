@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx"
+import { DateTime } from "luxon";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -19,4 +20,38 @@ export function formatTime(milliseconds: number) {
   seconds = seconds.toString().padStart(2, '0');
 
   return `${hours}:${minutes}:${seconds}`;
+}
+
+
+export function getOffSetCurrentDateTime(timeZone: string) {
+  const timeZoneCurrentTime = DateTime.now().setZone(timeZone);
+  const ISOString = timeZoneCurrentTime.toISO();
+  const ISOSplit = ISOString?.split("+");
+  const offsetString = ISOSplit?.[1];
+  const offset = offsetString?.split(":");
+  const hours = offset?.[0];
+  const minutes = offset?.[1];
+  // now from the retrieved offset lets create a new Date Object with the offset
+  const date = new Date();
+  date.setHours(date.getHours() + Number(hours));
+  date.setMinutes(date.getMinutes() + Number(minutes));
+  console.log("formatted offset date", date)
+  return date
+}
+
+export function getOffSetDateTime(date: string, timeZone: string){
+  console.log("getOffSetDateTime - date", date)
+  const timeZoneCurrentTime = DateTime.fromISO(date).setZone(timeZone);
+  const ISOString = timeZoneCurrentTime.toISO();
+  const ISOSplit = ISOString?.split("+");
+  const offsetString = ISOSplit?.[1];
+  const offset = offsetString?.split(":");
+  const hours = offset?.[0];
+  const minutes = offset?.[1];
+  // now from the retrieved offset lets create a new Date Object with the offset
+  const newDate = new Date(date);
+  newDate.setHours(newDate.getHours() + Number(hours));
+  newDate.setMinutes(newDate.getMinutes() + Number(minutes));
+  console.log("formatted offset date", newDate)
+  return newDate
 }
