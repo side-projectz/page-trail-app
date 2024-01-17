@@ -5,66 +5,93 @@ import { getServerSession } from "next-auth";
 import UsersDetailsDashboardCustom from "@/components/dashboard/users/user-dashboard-custom";
 import moment from "moment-timezone";
 
-
-export default async function UsersDetailsDashboard(
-  {
-    searchParams
-  }:
-    {
-      searchParams?: { [key: string]: string | string[] | undefined };
-    }
-) {
-
+export default async function UsersDetailsDashboard({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
   const session = await getServerSession();
 
   if (!session) {
-    redirect('/api/auth/signin');
+    redirect("/api/auth/signin");
   }
 
   console.log(searchParams);
-  const { start, end } = searchParams as { userId: string, start: string, end: string };
+  const { start, end } = searchParams as {
+    userId: string;
+    start: string;
+    end: string;
+  };
 
   const userId = session?.user?.email as string;
   const userDetails = await getUserDetails(userId);
 
-
   if (userDetails === null) {
-    return null
+    return null;
   }
 
-  const userTimeZone = 'Asia/Calcutta';
+  const userTimeZone = "Asia/Calcutta";
 
   const all = {
-    start: moment().tz(userTimeZone).startOf('year').toISOString(),
-    end: moment().tz(userTimeZone).endOf('year').toISOString()
-  }
+    start: moment().tz(userTimeZone).startOf("year").toISOString(),
+    end: moment().tz(userTimeZone).endOf("year").toISOString(),
+  };
 
   const today = {
-    start: start ?? moment().tz(userTimeZone).startOf('day').subtract(1, "days").toISOString(),
-    end: end ?? moment().tz(userTimeZone).endOf('day').subtract(1, "days").toISOString()
-  }
-
+    start:
+      start ??
+      moment()
+        .tz(userTimeZone)
+        .startOf("day")
+        .subtract(0, "days")
+        .toISOString(),
+    end:
+      end ??
+      moment().tz(userTimeZone).endOf("day").subtract(0, "days").toISOString(),
+  };
 
   const yesterday = {
-    start: moment().tz(userTimeZone).startOf('day').subtract(2, "days").toISOString(),
-    end: moment().tz(userTimeZone).endOf('day').subtract(2, "days").toISOString()
-  }
+    start: moment()
+      .tz(userTimeZone)
+      .startOf("day")
+      .subtract(1, "days")
+      .toISOString(),
+    end: moment()
+      .tz(userTimeZone)
+      .endOf("day")
+      .subtract(1, "days")
+      .toISOString(),
+  };
 
   const thisWeek = {
-    start: moment().tz(userTimeZone).startOf('week').subtract(0, 'week').toISOString(),
-    end: moment().tz(userTimeZone).endOf('week').subtract(0, 'week').toISOString()
-  }
-  
-  const PrevWeek = {
-    start: moment().tz(userTimeZone).startOf('week').subtract(1, 'week').toISOString(),
-    end: moment().tz(userTimeZone).endOf('week').subtract(1, 'week').toISOString()
-  }
+    start: moment()
+      .tz(userTimeZone)
+      .startOf("week")
+      .subtract(0, "week")
+      .toISOString(),
+    end: moment()
+      .tz(userTimeZone)
+      .endOf("week")
+      .subtract(0, "week")
+      .toISOString(),
+  };
 
+  const PrevWeek = {
+    start: moment()
+      .tz(userTimeZone)
+      .startOf("week")
+      .subtract(1, "week")
+      .toISOString(),
+    end: moment()
+      .tz(userTimeZone)
+      .endOf("week")
+      .subtract(1, "week")
+      .toISOString(),
+  };
 
   return (
     <>
-      <div className="flex-1 space-y-8 md:p-8 pt-6">
-
+      <div className="flex-1 space-y-8 pt-6 md:p-8">
         <UsersDetailsDashboardCustom
           title="Overall"
           description="The time spent on the internet this year"
@@ -103,10 +130,7 @@ export default async function UsersDetailsDashboard(
           start={PrevWeek.start}
           end={PrevWeek.end}
         />
-
       </div>
-
     </>
   );
-
 }
